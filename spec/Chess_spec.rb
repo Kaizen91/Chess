@@ -10,3 +10,9 @@ describe Board do
     end
 
 end
+
+describe Pawn do
+    subject(:p) {Pawn.new(:white)}
+    it {expect(p.colour).to eq :white}
+    it {expect(p.symbol).to eq "P"}
+end

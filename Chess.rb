@@ -1,3 +1,4 @@
+
 class Board
 
 attr_accessor :board
@@ -15,41 +16,36 @@ attr_accessor :board
             board[(col+"2").to_sym] = Pawn.new(:white)
             board[(col+"7").to_sym] = Pawn.new(:black)
         end
-
-        board[:a1] == Rook.new(:white)
-        board[:h1] == Rook.new(:white)
-        board[:a8] == Rook.new(:black)
-        board[:h8] == Rook.new(:black)
-
-        board[:b1] == Knight.new(:white)
-        board[:g1] == Knight.new(:white)
-        board[:b8] == Knight.new(:black)
-        board[:g8] == Knight.new(:black)
-
-        board[:c1] == Bishop.new(:white)
-        board[:f1] == Bishop.new(:white)
-        board[:c8] == Bishop.new(:black)
-        board[:f8] == Bishop.new(:black)
-
-        board[:e1] == King.new(:white)
-        board[:e8] == King.new(:black)
-
-        board[:d1] == Queen.new(:white)
-        board[:d8] == Queen.new(:black)
+        board[:a1] = Rook.new(:white)
+        board[:h1] = Rook.new(:white)
+        board[:a8] = Rook.new(:black)
+        board[:h8] = Rook.new(:black)
+        board[:b1] = Knight.new(:white)
+        board[:g1] = Knight.new(:white)
+        board[:b8] = Knight.new(:black)
+        board[:g8] = Knight.new(:black)
+        board[:c1] = Bishop.new(:white)
+        board[:f1] = Bishop.new(:white)
+        board[:c8] = Bishop.new(:black)
+        board[:f8] = Bishop.new(:black)
+        board[:e1] = King.new(:white)
+        board[:e8] = King.new(:black)
+        board[:d1] = Queen.new(:white)
+        board[:d8] = Queen.new(:black)
         return board
     end
 
     def print_piece(coord)
-        @board[coord].nil? ? " " : @board[coord].representation
+        @board[coord].nil? ? " " : @board[coord].symbol
     end
 
     def print_board
 
         horizantal_coordinates = "   " +["a","b","c","d","e","f","g","h"].join("   ")
 
-        topline = ("  "+ "┏━━━" * 8 + "┓")
+        topline = ("  ,"+ "----" * 8 + ",")
 
-        basic_lines = (["┃." * 8 +"┃"] * 8)
+        basic_lines = (["|." * 8 +"|"] * 8)
         basic_lines = basic_lines.map.with_index do |line, ord|
             "#{8-ord} " + line + " #{8-ord}"
         end
@@ -62,15 +58,15 @@ attr_accessor :board
                     line = line.sub ".", "\e[47m #{print_piece(coord1)} \e[0m" #puts a white background and gets the piece representation
                     line = line.sub ".", "\e[40m #{print_piece(coord2)} \e[0m" #puts a black background and gets the piece representation
                 else
-                    line = line.sub ".", "\e[40m #{print_piece(coord2)} \e[0m" #puts a black background and gets the piece representation
-                    line = line.sub ".", "\e[47m #{print_piece(coord1)} \e[0m" #puts a white background and gets the piece representation
+                    line = line.sub ".", "\e[40m #{print_piece(coord1)} \e[0m" #puts a black background and gets the piece representation
+                    line = line.sub ".", "\e[47m #{print_piece(coord2)} \e[0m" #puts a white background and gets the piece representation
                 end
             end
             line
         end
 
         middle_line  = ("  "+ "┣━━━" * 8 + "┫")
-        bottom_line  = ("  " + "┗━━━" * 8 + "┛")
+        bottom_line  = ("  " + "````" * 8 + "  ")
 
         body= basic_lines.join("\n" + middle_line + "\n")
         
@@ -80,32 +76,62 @@ attr_accessor :board
 end
 
 class Piece
-    attr_accessor :colour
+    attr_accessor :colour, :symbol
+
     def initialize(colour)
         @colour = colour
+    end
+
+    def colour_check
+        self.colour == :white ? true : false
     end
 end
 
 class Pawn < Piece
 
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "P" : "p"
+    end
+
+
 end
 
 class Rook < Piece
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "R" : "r"
+    end
 
 end
 
 class Knight < Piece
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "N" : "n"
+    end
 
 end
 
 class Bishop < Piece
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "B" : "b"
+    end
 
 end
 
 class King < Piece
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "K" : "k"
+    end
 
 end
 
 class Queen < Piece
-
+    def initialize(colour)
+        super(colour)
+        @symbol = colour_check ? "Q" : "q"
+    end
 end
