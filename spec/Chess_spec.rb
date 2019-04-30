@@ -9,6 +9,14 @@ describe Board do
         it { expect(b.board[:a7].colour).to eq :black}
     end
 
+    context "#move_piece" do
+        @@b = Board.new
+        @@b.move_piece(:a2,:a3)
+        it "takes moves a piece from one coord to another" do
+        expect(@@b.board[:a2]).to be_nil
+        end
+    end
+
 end
 
 describe Pawn do
@@ -16,3 +24,4 @@ describe Pawn do
     it {expect(p.colour).to eq :white}
     it {expect(p.symbol).to eq "P"}
 end
+

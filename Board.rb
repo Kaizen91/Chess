@@ -1,4 +1,4 @@
-
+require "./Pieces.rb"
 class Board
 
 attr_accessor :board
@@ -33,6 +33,11 @@ attr_accessor :board
         board[:d1] = Queen.new(:white)
         board[:d8] = Queen.new(:black)
         return board
+    end
+
+    def move_piece(cur_coord,new_coord)
+        @board[new_coord] = @board[cur_coord]
+        @board[cur_coord]= nil
     end
 
     def print_piece(coord)
@@ -72,6 +77,8 @@ attr_accessor :board
         
         visualized_board = [horizantal_coordinates, topline, body, bottom_line, horizantal_coordinates].join("\n")
     end
+
+
     
 end
 
