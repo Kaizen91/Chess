@@ -41,7 +41,7 @@ end
 describe Piece do 
     context "#can_move?" do
         subject(:pawn) {Pawn.new}
-        context "pawn moves one space and two spaces if first move" do
+        context "pawn moves one space or two spaces forward" do 
         it {expect(pawn.can_move?(:a2,:a3)).to be_true }
         it {expect(pawn.can_move?(:a2,:a4)).to be_true }
         end
