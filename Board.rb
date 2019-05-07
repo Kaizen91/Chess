@@ -78,7 +78,7 @@ attr_accessor :board
         visualized_board = [horizantal_coordinates, topline, body, bottom_line, horizantal_coordinates].join("\n")
     end
 
-=begin
+=begin I think this is not needed due to move_piece
     def take_piece(start_coord,target_coord)
         if target_coord
     end

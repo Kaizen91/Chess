@@ -40,51 +40,75 @@ end
 
 describe Piece do 
     context "#can_move?" do
-        subject(:pawn) {Pawn.new}
-        context "pawn moves one space or two spaces forward" do 
-        it {expect(pawn.can_move?(:a2,:a3)).to be_true }
-        it {expect(pawn.can_move?(:a2,:a4)).to be_true }
+        subject(:pawn) {Pawn.new(:white)}
+        subject(:rook) {Rook.new(:white)}
+        subject(:knight) {Knight.new(:white)}
+        subject(:bishop) {Bishop.new(:white)}
+        subject(:king) {King.new(:white)}
+        subject(:queen) {Queen.new(:white)}
+
+
+        #Pawn tests
+        it "Pawn can move one space forward" do
+            expect(pawn.can_move?(:a2,:a3)).to eq true 
         end
-        context "pawn doesn't move incorrectly" do
-        it {expect(pawn.can_move?(:a2,:d3)).to be_false}
+        it "Pawn can move two spaces forward on first move" do
+            expect(pawn.can_move?(:a2,:a4)).to eq true 
         end
-        subject(:rook) {Rook.new}
-        context "rook moves along verticles and horizantals" do
-        it {expect(rook.can_move?(:a2,:a8)).to be_true }
-        it {expect(rook.can_move?(:a2,:h2)).to be_true }
+        it "Pawn can't move like a bishop" do
+         expect(pawn.can_move?(:a2,:d3)).to eq false
         end
-        context "rook doesn't move horizantally"do
-        it {expect(rook.can_move?(:a2,:b3)).to be_false}
+        
+        
+        #Rook tests
+        it "Rook can move along it's file" do
+        expect(rook.can_move?(:a2,:a8)).to eq true 
         end
-        subject(:knight) {Knight.new}
-        context "knights move in Ls" do
-        it {expect(knight.can_move?(:a2,:c3)).to be_true }
-        it {expect(knight.can_move?(:a2,:a3)).to be_false}
+        it "Rook can move along it's rank" do
+        expect(rook.can_move?(:a2,:h2)).to eq true 
         end
-        subject(:bishop) {Bishop.new}
-        context "bishops move along diagonals" do
-        it {expect(bishop.can_move?(:a2,:c4)).to  be_true }
+        it "Rook can't move like a Bishop" do
+        expect(rook.can_move?(:a2,:b3)).to eq false
         end
-        context "bishops can move horizantally" do
-        it {expect(bishop.can_move?(:a2,:a3)).to be_false }
+      
+        #Knight tests
+        it "Knight moves in an L" do
+        expect(knight.can_move?(:a2,:c3)).to eq true 
         end
-        subject(:king) {King.new}
-        context "kings move one space around themselves" do
-        it {expect(king.can_move?(:a2,:a3)).to be_true }
-        it {expect(king.can_move?(:a2,:a4)).to be_false }
+        it "Knight doesn't move like a Bishop" do 
+            expect(knight.can_move?(:a2,:a3)).to eq false
         end
-        subject(:queen) {Queen.new}
-        context "queens can move horizantally" do
-        it {expect(queen.can_move?(:a1,:h8)).to be_true }
+        
+        #Bishop Tests
+        it "Bishop can move diagonally" do
+            expect(bishop.can_move?(:a2,:c4)).to  eq true 
         end
-        context "queens can move vertically" do
-        it {expect(queen.can_move?(:a2,:a8)).to be_true}
+        it "Bishop cannot move like a Rook" do 
+            expect(bishop.can_move?(:a2,:a3)).to eq false 
         end
-        context "queens can move diagonally" do 
-        it {expect(queen.can_move?(:a1,:h1)).to be_true }
+
+        #King Test
+        it "King can move one space" do
+            expect(king.can_move?(:a2,:a3)).to eq true 
         end
-        context "queens can't move in Ls" do
-        it {expect(queen.can_move?(:a1,:b3)).to be_false}
+        it "King can't move two spaces" do
+            expect(king.can_move?(:a2,:a4)).to eq false 
+        end
+       
+        #Queen test
+       
+        it "Queen can move diagonally" do
+            expect(queen.can_move?(:a1,:h8)).to eq true 
+        end
+       
+        it "Queen can move vertically" do
+            expect(queen.can_move?(:a2,:a8)).to eq true
+        end
+        it "Queen can move horizantally" do
+            expect(queen.can_move?(:a1,:h1)).to eq true 
+        end
+        it "Queen can't move in Ls" do
+        expect(queen.can_move?(:a1,:b3)).to eq false
         end
     end
 end
