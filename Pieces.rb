@@ -115,6 +115,3 @@ class Queen < Piece
         @symbol = colour_check ? "Q" : "q"
     end
 end
-
-p = Pawn.new(:white)
-p.can_move?(:a2.to_s,:a4.to_s)
