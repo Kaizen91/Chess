@@ -71,18 +71,33 @@ class Piece
 end
 
 class Pawn < Piece
+    attr_accessor :turn_of_first_move
     def initialize(colour)
         super(colour)
         @symbol = colour_check ? "P" : "p"
+        @turn_of_first_move = nil
+    end
+
+    def can_attack?(cur_coord, new_coord,game_turn)
+        return false unless (cur_coord[0].ord + 1 == new_coord[0].ord) || (cur_coord[0].ord - 1 == new_coord[0].ord)
+
+        if self.colour ==  :white
+            return false unless cur_coord[1].to_i  + 1 == new_coord[1].to_i
+        else
+            return false unless cur_coord[1].to_i - 1 == new_coord[1].to_i
+        end
+
+        return true
     end
 end
 
 class Rook < Piece
+    attr_accessor :never_moved
     def initialize(colour)
         super(colour)
         @symbol = colour_check ? "R" : "r"
+        @never_moved = true
     end
-
 end
 
 class Knight < Piece
@@ -102,9 +117,12 @@ class Bishop < Piece
 end
 
 class King < Piece
+    attr_accessor :ischecked, :never_moved
     def initialize(colour)
         super(colour)
         @symbol = colour_check ? "K" : "k"
+        @ischecked = false
+        @never_moved = true
     end
 
 end
