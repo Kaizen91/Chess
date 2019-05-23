@@ -20,10 +20,6 @@ class Game
         return true
     end
 
-    #  def right_coloured_piece(player, coord)
-  #  return player == @board.get(coord).colour ? true : false
-#    end
-
     def right_coloured_piece?(player,coord)
         return @board.board[coord].colour == player ? true : false
     end
@@ -31,7 +27,7 @@ class Game
     def get_move(player)
         puts "please enter the square you would like to move from."
         from = gets.chomp.to_sym
-        until valid_and_occupied?(from) && right_coloured_piece?(player,from)
+        until (valid_and_occupied?(from) && right_coloured_piece?(player,from))
             puts "It has to be occupied and the right colour. Please try again."
             from = gets.chomp.to_sym
         end
@@ -52,18 +48,17 @@ class Game
         true
     end
 
-    def valid_move?(from, to)
+    def valid_move?(from, to, game_turn)
         from_piece = @board.get_coord(from)
         if @board.get_coord(to).nil?
             if from_piece.is_a? Pawn
                 
-                #still need to address en passent
-                return false unless from_piece.can_move?(from, to)
+               
+                return false unless from_piece.can_move?(from, to) || @board.en_passant?(from, to, game_turn)
 
             elsif from_piece.is_a? King
 
-                #still need to address castling, and moving into check
-                return false unless from_piece.can_move?(from, to)
+                return false unless @board.can_castle?(from,to) || from_piece.can_move?(from, to)
                 
             else
                 return false unless from_piece.can_move?(from, to)
@@ -83,8 +78,8 @@ class Game
         true
     end
 
-    def legal_move?(from,to)
-        free_way?(from,to) && valid_move?(from,to)
+    def legal_move?(from,to,game_turn)
+        free_way?(from,to) && valid_move?(from,to,game_turn)
     end
 end
 
@@ -104,7 +99,7 @@ def play_game
             coords = chess.get_move(player)
             from = coords[0]
             to = coords[1]
-            next unless chess.legal_move?(from,to) 
+            next unless chess.legal_move?(from,to,turn) 
             #need a check for if the player's king is checked
             accepted_move = true
         end

@@ -49,8 +49,10 @@ attr_accessor :board, :turn
 
     #en_passant
     if (cur_piece.is_a? Pawn) && (en_passant?(cur_coord,new_coord,game_turn))
+        opp_coord = ep_opp_coord(cur_coord,new_coord)
         @board[opp_coord] = nil
     end
+
 
     #pawn promotion
 
@@ -61,6 +63,9 @@ attr_accessor :board, :turn
 
     #actualmove
     move_piece(cur_coord,new_coord)
+
+    #notes the turn when a pawn takes double squares on it's first move
+    cur_piece.turn_of_first_move = game_turn if (cur_piece.is_a? Pawn) && (cur_coord[0] == new_coord[0]) && ((cur_coord[1].to_i - new_coord[1].to_i).abs == 2) 
 
     @board
    end
@@ -231,9 +236,9 @@ attr_accessor :board, :turn
 
     def ep_opp_coord(cur_coord,new_coord)
         if @board[cur_coord].colour ==:black
-            opp_coord = (new_coord[0] + (new_coord[1].to_i +1).to_s).to_sym
+            opp_coord = (new_coord[0] + (new_coord[1].to_i + 1).to_s).to_sym
         else
-            opp_coord = (new_coord[0] + (new_coord[1].to_i -1).to_s).to_sym
+            opp_coord = (new_coord[0] + (new_coord[1].to_i - 1).to_s).to_sym
         end
         opp_coord
     end
