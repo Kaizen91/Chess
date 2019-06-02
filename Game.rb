@@ -1,10 +1,27 @@
 require "./Board.rb"
 class Game
-    attr_accessor :board
-    def initialize
-        @board = Board.new
+    attr_accessor :board, :game_over, :turn
+
+    def initialize(board = Board.new,turn = 0)
+        @board = board
         @game_over = false
-        
+        @turn = turn
+
+        new_or_load
+        play_game(@turn)
+    end
+
+
+    def new_or_load
+        puts "enter 'n' for new game or 'l' to load a saved game"
+        answer = gets.chomp.downcase
+        if answer == "n" 
+            puts "Starting new Game"
+        else
+            puts "Loading Game"
+            @board = load_game[0]
+            @turn = load_game[1]
+        end
     end
 
     def valid_coord?(coord)
@@ -81,37 +98,90 @@ class Game
     def legal_move?(from,to,game_turn)
         free_way?(from,to) && valid_move?(from,to,game_turn)
     end
-end
 
-#the part of the code that actually runs the game
-def play_game
 
-    chess = Game.new
-    puts chess.board.print_board
-    turn = 0
 
-    until @game_over
-        turn += 1
-        player = turn.odd? ? :white : :black
-        accepted_move = false
-        
-        until accepted_move
-            coords = chess.get_move(player)
-            from = coords[0]
-            to = coords[1]
-            next unless chess.legal_move?(from,to,turn) 
-            #need a check for if the player's king is checked
-            accepted_move = true
+    def play_game(turn)
+
+        until @game_over
+            puts self.board.print_board
+            turn += 1
+            player = turn.odd? ? :white : :black
+            accepted_move = false
+            
+            until accepted_move
+                coords = self.get_move(player)
+                from = coords[0]
+                to = coords[1]
+                next unless self.legal_move?(from,to,turn) 
+                #need a check for if the player's king is checked
+                accepted_move = true
+            end
+    
+            self.board.update(from,to,turn)
+            puts self.board.print_board
+            #need a check for checkmate
+            #need a check for if opponent is checked
+            puts "the end next turn"
+
+            if self.quit_game?
+                self.save_game(turn)
+                break
+            end
         end
-
-        chess.board.update(from,to,turn)
-        puts chess.board.print_board
-        #need a check for checkmate
-        #need a check for if opponent is checked
-        puts "the end next turn"
+    
     end
 
+    def save_game(turn)
+        pieces = {}
+        @board.board.each_pair do |coord, obj|
+            next if obj.nil?
+            features = [obj.class, obj.colour]
+            if obj.is_a? Pawn
+                features << (obj.turn_of_first_move)
+            elsif (obj.is_a? Rook) || (obj.is_a? King)
+                features << obj.never_moved
+            end
+            pieces[coord] = features
+        end
+        data = JSON.dump ({:board => pieces, :turn => turn})
+        File.open('saved_game.json', 'w') {|file| file.write(data)}
+    end
+
+    def self.load_game
+        data = JSON.load File.read('saved_game.json')
+        turn = data['turn']
+        pieces = data['board']
+
+        board = {}
+        ["a","b","c","d","e","f","g","h"].each do |letter|
+            for rank in 1..8
+                board[(letter + "#{rank}").to_sym] = nil
+            end
+        end
+
+        pieces.each_pair do |coord, features|
+            if features[2]
+                board[coord.to_sym] = Object.const_get(features[0]).new(features[1].to_sym, features[2])
+            else
+                board[coord.to_sym] = Object.const_get(features[0]).new(features[1].to_syn)
+            end
+        end
+
+        [board,turn]
+    end
+
+    def quit_game?
+        puts "do you want to quit the game or continue?"
+        puts "please enter 'q' or 'c'"
+        answer = gets.chomp.downcase
+        until answer == "q" || answer == "c"
+            puts "please enter 'q' or 'c'"
+            answer = gets.chomp.downcase
+        end
+        return answer == "q" ? true : false
+    end
 end
 
 
-play_game
+Game.new
