@@ -1,4 +1,5 @@
 require "./Board.rb"
+require "json"
 class Game
     attr_accessor :board, :game_over, :turn
 
@@ -19,8 +20,10 @@ class Game
             puts "Starting new Game"
         else
             puts "Loading Game"
-            @board = load_game[0]
-            @turn = load_game[1]
+            board = Board.new(load_game[0])
+            turn = load_game[1]
+            @board = board
+            @turn = turn
         end
     end
 
@@ -148,7 +151,7 @@ class Game
         File.open('saved_game.json', 'w') {|file| file.write(data)}
     end
 
-    def self.load_game
+    def load_game
         data = JSON.load File.read('saved_game.json')
         turn = data['turn']
         pieces = data['board']
@@ -164,7 +167,7 @@ class Game
             if features[2]
                 board[coord.to_sym] = Object.const_get(features[0]).new(features[1].to_sym, features[2])
             else
-                board[coord.to_sym] = Object.const_get(features[0]).new(features[1].to_syn)
+                board[coord.to_sym] = Object.const_get(features[0]).new(features[1].to_sym)
             end
         end
 
