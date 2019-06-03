@@ -1,12 +1,13 @@
 require "./Board.rb"
 require "json"
 class Game
-    attr_accessor :board, :game_over, :turn
+    attr_accessor :board, :game_over, :turn, :coords, :from, :to
 
     def initialize(board = Board.new,turn = 0)
         @board = board
         @game_over = false
         @turn = turn
+
 
         new_or_load
         play_game(@turn)
@@ -102,29 +103,54 @@ class Game
         free_way?(from,to) && valid_move?(from,to,game_turn)
     end
 
+    def king_in_check?(player, king_coord,game_turn)
+        if player == :white
+            @board.black_pieces.any? do |piece, coord|
+                legal_move?(coord,king_coord,game_turn)
+            end
+        else
+            @board.white_pieces.any? do |piece, coord|
+                legal_move?(coord,king_coord,game_turn)
+            end
+        end
+    end
 
+    def accept_move(player)
+        accepted_move = false   
+        until accepted_move
+            @coords = self.get_move(player)
+            @from = coords[0]
+            @to = coords[1]
+            next unless self.legal_move?(@from,@to,@turn)
+            accepted_move = true
+        end
+    end
+
+    def show_board(from,to,turn)
+        self.board.update(from,to,turn)
+            puts self.board.print_board
+    end
 
     def play_game(turn)
 
         until @game_over
             puts self.board.print_board
-            turn += 1
-            player = turn.odd? ? :white : :black
-            accepted_move = false
-            
-            until accepted_move
-                coords = self.get_move(player)
-                from = coords[0]
-                to = coords[1]
-                next unless self.legal_move?(from,to,turn) 
-                #need a check for if the player's king is checked
-                accepted_move = true
+            @turn += 1
+            player = @turn.odd? ? :white : :black
+
+            accept_move(player)
+            show_board(@from,@to,@turn)
+
+            #king in check?
+            king_coord = @board.get_king(player)[1]
+            if king_in_check?(player, king_coord,@turn)
+                show_board(@to,@from,@turn)#reverts the board 
+                puts "\nyour king is in check pay attention!\n".upcase
+                accept_move(player)
+                show_board(@from,@to,@turn)
             end
-    
-            self.board.update(from,to,turn)
-            puts self.board.print_board
+            
             #need a check for checkmate
-            #need a check for if opponent is checked
             puts "the end next turn"
 
             if self.quit_game?

@@ -1,10 +1,14 @@
 require "./Pieces.rb"
 class Board
 
-attr_accessor :board, :turn
+attr_accessor :board, :turn, :black_pieces, :white_pieces
     def initialize(board = create_board)
         @turn = :white
         @board = board
+        #hashes that contain the piece => coord
+        @white_pieces = {}
+        @black_pieces = {}
+        create_teams
     end
 
     def get_coord(coord)
@@ -43,6 +47,22 @@ attr_accessor :board, :turn
         return board
     end
 
+    def create_teams
+        @board.each do |coord, obj|
+            next if obj == nil
+            @white_pieces[obj] = coord if obj.colour == :white
+            @black_pieces[obj] = coord if obj.colour == :black
+        end
+    end
+
+    def update_teams(piece, coord)
+        if piece.colour == :white
+            @white_pieces[piece] = coord
+        else
+            @black_pieces[piece] = coord
+        end
+    end
+
    def update(cur_coord,new_coord, game_turn)
 
     cur_piece = @board[cur_coord]
@@ -61,13 +81,26 @@ attr_accessor :board, :turn
         update_rook_after_castle(new_coord)
     end
 
-    #actualmove
+    #updates the hashes that have the active pieces by location
+    other_piece = @board[new_coord]
+    if other_piece
+        @white_pieces.delete(other_piece) if other_piece.colour == :white
+        @black_pieces.delete(other_piece) if other_piece.colour == :black
+    end
+    update_teams(cur_piece,new_coord)
+
+     #actualmove
     move_piece(cur_coord,new_coord)
 
-    #notes the turn when a pawn takes double squares on it's first move
     cur_piece.turn_of_first_move = game_turn if (cur_piece.is_a? Pawn) && (cur_coord[0] == new_coord[0]) && ((cur_coord[1].to_i - new_coord[1].to_i).abs == 2) 
-
+    #notes the turn when a pawn takes double squares on it's first move
+    
     @board
+   end
+
+   def get_king(colour)
+    which_pieces = colour == :white ? @white_pieces : @black_pieces
+    return which_pieces.select { |piece, coord| piece.is_a? King}.map {|piece, coord| [piece,coord]}.flatten
    end
 
     def move_piece(cur_coord,new_coord)
