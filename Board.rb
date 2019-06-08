@@ -75,7 +75,9 @@ attr_accessor :board, :turn, :black_pieces, :white_pieces
 
 
     #pawn promotion
-
+    if (cur_piece.is_a? Pawn) && (new_coord[1] == "1" || new_coord[1] == "8")
+        return pawn_promotion(cur_coord,new_coord)
+    end
     #castling
     if (cur_piece.is_a? King) && can_castle?(cur_coord,new_coord)
         update_rook_after_castle(new_coord)
@@ -318,6 +320,29 @@ attr_accessor :board, :turn, :black_pieces, :white_pieces
         move_piece(rook_cur_coord,rook_new_coord)
 
         rook_new_coord
+    end
+
+    def pawn_promotion(cur_coord,new_coord,new_piece = pawn_to_be)
+        cur_pawn = @board[cur_coord]
+        @white_pieces.delete(cur_pawn) if cur_pawn.colour == :white
+        @black_pieces.delete(cur_pawn) if cur_pawn.colour == :black
+        @board[cur_coord] = nil
+
+        @board[new_coord] = Piece.const_get(new_piece).new(cur_pawn.colour)
+        promoted = @board[new_coord]
+        update_teams(promoted,new_coord)
+    end
+
+    def pawn_to_be
+        puts "Enter 0 for Queen, 1 for Knight, 2 for Rook, 4 for Bishop"
+        choice = gets.chomp.to_i
+        until (choice.is_a? Integer) && (choice.between?(0,3))
+            puts "Please enter a valid number"
+            choice = gets.chomp.to_i
+        end
+
+        pieces = ["Queen","Knight","Rook","Bishop"]
+        pieces[choice]
     end
 end
 

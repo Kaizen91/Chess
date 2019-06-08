@@ -90,7 +90,7 @@ class Game
             return false if from_piece.colour == @board.get_coord(to).colour
 
             if from_piece.is_a? Pawn
-                reutrn false unless from_piece.can_attack?(from, to)
+                return false unless from_piece.can_attack?(from, to,@turn)
             else
                 return false unless from_piece.can_move?(from, to)
             end
@@ -137,11 +137,12 @@ class Game
             puts self.board.print_board
             @turn += 1
             player = @turn.odd? ? :white : :black
+            opponent = @turn.odd? ? :black : :white
 
             accept_move(player)
             show_board(@from,@to,@turn)
 
-            #king in check?
+            #is the moving player's king in check?
             king_coord = @board.get_king(player)[1]
             if king_in_check?(player, king_coord,@turn)
                 show_board(@to,@from,@turn)#reverts the board 
@@ -149,8 +150,20 @@ class Game
                 accept_move(player)
                 show_board(@from,@to,@turn)
             end
+
+            #Checkmate check
+            #when the active player puts the opponent in check this looks to see if the oppenent has anyway of getting out of check
+         
+            if checks_the_opponents_king?(@to)
+                if check_mate?(player,@to)
+                    puts "Checkmate! Congradulations #{player} wins!"
+                    game_over = true
+                end
+            end
             
-            #need a check for checkmate
+        
+        
+
             puts "the end next turn"
 
             if self.quit_game?
@@ -158,9 +171,90 @@ class Game
                 break
             end
         end
+
+    end
     
+    
+
+    def check_mate?(player, attacking_piece)
+        
+        opponent = player == :white ? :black : :white
+        
+
+        return false unless king_can_move_to?(opponent).empty?
+        return false if piece_can_be_taken?(player, attacking_piece)
+        return false if any_piece_can_block?(player,attacking_piece)
+        true
+
     end
 
+    def king_can_move_to?(player)
+        king_coord = @board.get_king(player)[1]
+        letters = [(king_coord[0].ord - 1),(king_coord[0].ord),(king_coord[0].ord + 1)].select {|num| num.between?(97,104)}.map{|num| num.chr}
+        nums = [(king_coord[1].to_i - 1),(king_coord[1].to_i),(king_coord[1].to_i + 1)].select {|num| num.between?(1,8)}.map(&:to_s)
+
+        possible_coords = []
+
+        letters.each do |letter|
+            nums.each do |num|
+                possible_coords << ((letter+num).to_sym)
+            end
+        end
+
+        possible_coords -= [king_coord]
+
+        possible_coords = possible_coords.select{|pos_coord| legal_move?(king_coord,pos_coord,@turn)}.select {|pos_coord| !king_in_check?(player,king_coord,@turn)}
+
+        possible_coords
+    end
+
+    def piece_can_be_taken?(attacking_piece,player)
+        
+        opponent = player == :white ? :black : :white
+        op_pieces = opponent == :black ? @board.black_pieces : @board.white_pieces
+        pieces_that_can_take = op_pieces.select {|piece,coord| legal_move?(coord,attacking_piece,@turn)}
+        return false if pieces_that_can_take.empty?
+        true
+        
+    end
+
+    def checks_the_opponents_king?(coord)
+
+        cur_piece = @board.get_coord(coord)
+        king_colour = cur_piece.colour == :white ? :black : :white
+        king_coord = @board.get_king(king_colour)[1]
+        if legal_move?(coord,king_coord, @turn) 
+            return true 
+        else
+             return false
+        end
+    end
+
+    def any_piece_can_block?(attacking_piece,player)
+
+        opponent = player == :white ? :black : :white
+        op_pieces = opponent == :black ? @board.black_pieces : @board.white_pieces
+        
+        return false if @board.get_coord(attacking_piece).is_a? Knight
+
+        king_coord = @board.get_king(opponent)[1]
+
+        path = @board.path_between(attacking_piece,king_coord).flatten
+
+        return false if path.empty?
+
+        op_pieces.values.each do |piece_coord|
+            path.each do |square|
+                if legal_move?(piece_coord,square,@turn) 
+                    return true
+                else
+                    next
+                end
+            end
+        end
+    end
+
+ 
     def save_game(turn)
         pieces = {}
         @board.board.each_pair do |coord, obj|
@@ -210,7 +304,9 @@ class Game
         end
         return answer == "q" ? true : false
     end
+
 end
 
 
 Game.new
+
