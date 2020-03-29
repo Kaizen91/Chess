@@ -10,11 +10,10 @@ Download the repo and in the command line type ruby Game.rb.  This will start a 
 
 Ruby 2.5.1
 
-## Authors
+## Author
 
 * **Stephen Lang** - *Initial work* - [Kaizen91](https://github.com/Kaizen91)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 
 
